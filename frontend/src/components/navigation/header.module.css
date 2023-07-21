@@ -1,0 +1,41 @@
+.logo {
+	height: 3rem;
+	width: 3rem;
+	border-radius: 50%;
+}
+
+.title__block {
+	display: flex;
+	align-items: center;
+}
+
+header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem;
+}
+
+.plus {
+	background: orange;
+	border-radius: 50%;
+	border: black 1px solid;
+	margin-right: 0.8rem;
+	cursor: pointer;
+}
+
+.title {
+	font-size: xx-large;
+	font-weight: 500;
+}
+
+.text__orange {
+	color: orange;
+}
+
+textarea {
+	width: 95%;
+	height: 8rem;
+	padding: 0.5rem;
+	margin-bottom: 1rem;
+}

@@ -1,0 +1,46 @@
+.card {
+	display: flex;
+	flex-direction: column;
+	margin: 5px;
+	padding: 1.5rem;
+	border-radius: 1.4rem;
+	border: 0.5px rgb(133, 133, 133) solid;
+	cursor: pointer;
+}
+
+.card:hover {
+	background-color: rgb(238 238 238);
+}
+
+.card__top {
+	display: flex;
+	justify-content: start;
+	align-items: center;
+	gap: 5px;
+}
+
+.profile__pic {
+	height: 2rem;
+	width: 2rem;
+	border-radius: 50%;
+}
+
+.username {
+	font-size: 1rem;
+	font-weight: 500;
+}
+
+/* ActionBar Styles */
+
+.action__bar {
+	display: flex;
+}
+
+.center__items {
+	display: flex;
+	align-items: center;
+}
+
+.fill__red {
+	fill: red;
+}
