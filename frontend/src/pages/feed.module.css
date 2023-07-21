@@ -12,10 +12,10 @@
 
 .create__post__btn {
 	padding: 1rem;
-	background: orange;
+	background: var(--primary-color);
 	cursor: pointer;
 }
 
-.create__post__btn:hover{
+.create__post__btn:hover {
 	opacity: 0.9;
 }

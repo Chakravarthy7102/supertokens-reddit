@@ -8,7 +8,7 @@ type ButtonProps = JSX.IntrinsicElements["button"] & {
 
 export default function Button({ isLoading, children, ...props }: ButtonProps) {
 	return (
-		<button className={styles.button} {...props}>
+		<button disabled={isLoading} className={styles.button} {...props}>
 			{isLoading ? (
 				<div className={styles.loader__container}>
 					<Loader className={styles.button__loader} />

@@ -1,26 +1,34 @@
 import mongoose from "mongoose";
+import { IUser } from "./user";
 
 export interface IPost {
+	title: string;
 	content: string;
-	upvotes: string[];
-	downvotes: string[];
+	user: IUser;
 }
 
 export type IPostModel = IPost & mongoose.Document;
 
-export const UserSchema = new mongoose.Schema<IPostModel>(
+export const PostSchema = new mongoose.Schema<IPostModel>(
 	{
+		title: {
+			type: String,
+			required: true,
+		},
 		content: {
 			type: String,
+			required: true,
 		},
-		upvotes: [{ type: mongoose.Types.ObjectId, ref: "User" }],
-		downvotes: [{ type: mongoose.Types.ObjectId, ref: "User" }],
+		user: {
+			type: mongoose.Types.ObjectId,
+			required: true,
+		},
 	},
 	{
 		timestamps: true,
 	}
 );
 
-const User = mongoose.model<IPostModel>("Post", UserSchema);
+const Post = mongoose.model<IPostModel>("Post", PostSchema);
 
-export default User;
+export default Post;

@@ -11,8 +11,8 @@ export default function Feed() {
 
 	return (
 		<div className={styles.feed__container}>
-			{posts.map((content) => {
-				return <Post content={content} />;
+			{posts.map((content, index) => {
+				return <Post key={index} content={content} />;
 			})}
 		</div>
 	);

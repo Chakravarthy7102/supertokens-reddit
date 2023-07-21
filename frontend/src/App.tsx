@@ -15,7 +15,6 @@ function App() {
 	return (
 		<SuperTokensWrapper>
 			<div className={styles.container}>
-				
 				<Router>
 					<Header />
 					<Routes>

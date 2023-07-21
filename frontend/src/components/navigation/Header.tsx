@@ -8,7 +8,7 @@ import styles from "./header.module.css";
 import { useCallback, useState } from "react";
 import { Plus } from "../../icons";
 import Modal from "../ui/modal";
-import Button from "../ui/button.tsx";
+import Button from "../ui/button";
 
 export default function Header() {
 	const navigate = useNavigate();

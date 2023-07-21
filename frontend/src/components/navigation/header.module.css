@@ -17,7 +17,7 @@ header {
 }
 
 .plus {
-	background: orange;
+	background: var(--primary-color);
 	border-radius: 50%;
 	border: black 1px solid;
 	margin-right: 0.8rem;
@@ -30,7 +30,7 @@ header {
 }
 
 .text__orange {
-	color: orange;
+	color: var(--primary-color);
 }
 
 textarea {
