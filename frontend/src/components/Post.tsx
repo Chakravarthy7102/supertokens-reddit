@@ -3,12 +3,21 @@ import { useState } from "react";
 import { DownVoteIcon, UpVoteIcon } from "../icons";
 import styles from "./post.module.css";
 import { fromNow } from "../utils/fromNow";
+import { downVotePost, upVotePost } from "../api/post";
+
+interface Votes {
+	upvotes: number;
+	downvotes: number;
+	isUserDownvoted: boolean;
+	isUserUpvoted: boolean;
+}
 
 export interface PostI {
 	_id: string;
 	title: string;
 	content: string;
 	createdAt: string;
+	votes: Votes;
 	user: {
 		username: string;
 		avatar: string;
@@ -21,6 +30,7 @@ export default function Post({
 	user,
 	_id: postId,
 	createdAt,
+	votes,
 }: PostI) {
 	return (
 		<div className={styles.card}>
@@ -33,16 +43,26 @@ export default function Post({
 			</div>
 			<h2>{title}</h2>
 			<p>{content}</p>
-			<ActionBar />
+			<ActionBar postId={postId} {...votes} />
 		</div>
 	);
 }
 
-function ActionBar() {
-	const [upvoted, setUpvoted] = useState(false);
-	const [downVoted, setDownvoted] = useState(false);
-	const [upVotesCount, setUpvoteCount] = useState(0);
-	const [downVotesCount, setDownVotesCount] = useState(0);
+interface ActionBarProps extends Votes {
+	postId: string;
+}
+
+function ActionBar({
+	postId,
+	downvotes,
+	upvotes,
+	isUserDownvoted,
+	isUserUpvoted,
+}: ActionBarProps) {
+	const [upvoted, setUpvoted] = useState(isUserUpvoted);
+	const [downVoted, setDownvoted] = useState(isUserDownvoted);
+	const [upVotesCount, setUpvoteCount] = useState(upvotes);
+	const [downVotesCount, setDownVotesCount] = useState(downvotes);
 
 	function handleUpvote() {
 		if (!upvoted) {
@@ -53,6 +73,10 @@ function ActionBar() {
 			setUpvoted(true);
 			setDownvoted(false);
 			setUpvoteCount(upVotesCount + 1);
+			upVotePost(postId).catch((err) => {
+				console.log(err);
+				alert("error while upvoting!");
+			});
 		} else {
 			setUpvoted(false);
 			setUpvoteCount(upVotesCount - 1);
@@ -68,6 +92,10 @@ function ActionBar() {
 			setDownvoted(true);
 			setUpvoted(false);
 			setDownVotesCount(downVotesCount + 1);
+			downVotePost(postId).catch((err) => {
+				console.log(err);
+				alert("error while down voting!");
+			});
 		} else {
 			setDownvoted(false);
 			setDownVotesCount(downVotesCount - 1);

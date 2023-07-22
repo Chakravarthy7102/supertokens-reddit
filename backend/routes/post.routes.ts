@@ -5,14 +5,17 @@ import { verifySession } from "supertokens-node/recipe/session/framework/express
 import Post from "../models/posts";
 import Vote from "../models/vote";
 import User from "../models/user";
+import mongoose from "mongoose";
 
 const postRouter = Router();
 
 const OFFSET = 10;
 
-postRouter.get("/all", async (req, res) => {
+postRouter.get("/all", verifySession(), async (req: SessionRequest, res) => {
 	const page = Number(req.query.page) || 1;
 	const skip = (page - 1) * OFFSET;
+	const supertokensId = req.session?.getUserId();
+	const user = await User.findOne({ supertokensId });
 	try {
 		const posts = await Post.find({})
 			.populate("user")
@@ -28,6 +31,7 @@ postRouter.get("/all", async (req, res) => {
 						postId: post._id,
 					},
 				},
+
 				{
 					$group: {
 						_id: "$postId",
@@ -41,13 +45,65 @@ postRouter.get("/all", async (req, res) => {
 								$cond: [{ $eq: ["$isDownVote", true] }, 1, 0],
 							},
 						},
+						doc: { $first: "$$ROOT" },
+					},
+				},
+				{
+					$replaceRoot: {
+						newRoot: {
+							$mergeObjects: [
+								{
+									upvoteCount: "$upvoteCount",
+									downVoteCount: "$downVoteCount",
+								},
+								"$doc",
+							],
+						},
+					},
+				},
+				{
+					$addFields: {
+						isUserDownvoted: {
+							$cond: [
+								{
+									$and: [
+										{ $eq: ["$userId", user?._id] },
+										{ $eq: ["$isDownVote", true] },
+									],
+								},
+								true,
+								false,
+							],
+						},
+						isUserUpvoted: {
+							$cond: [
+								{
+									$and: [
+										{ $eq: ["$userId", user?._id] },
+										{ $eq: ["$isUpVote", true] },
+									],
+								},
+								true,
+								false,
+							],
+						},
 					},
 				},
 			]);
 			console.log({ votes });
-			postsWithUpvotes.push({ ...posts, votes });
+			postsWithUpvotes.push({
+				...post.toObject(),
+				votes: {
+					upvotes: votes[0]?.upvoteCount ?? 0,
+					downvotes: votes[0]?.downVoteCount ?? 0,
+					isUserUpvoted: votes[0]?.isUserUpvoted ?? false,
+					isUserDownvoted: votes[0]?.isUserDownvoted ?? false,
+				},
+			});
 		}
-		return res.status(200).json({ message: "ok", data: { posts } });
+		return res
+			.status(200)
+			.json({ message: "ok", data: { posts: postsWithUpvotes } });
 	} catch (err) {
 		console.log(err);
 		return res.status(500).json({ message: "something went wrong!" });
@@ -110,10 +166,12 @@ postRouter.get("/upvote", verifySession(), async (req: SessionRequest, res) => {
 
 	try {
 		const vote = await Vote.findOne({
-			postId,
+			postId: new mongoose.Types.ObjectId(postId as string),
 			userId: user._id,
-			$or: [{ isUpVote: true, isDownVote: true }],
+			$or: [{ isUpVote: { $eq: true } }, { isDownVote: { $eq: true } }],
 		});
+
+		console.log({ vote });
 
 		if (!vote) {
 			await Vote.create({
@@ -160,7 +218,7 @@ postRouter.get(
 			const vote = await Vote.findOne({
 				postId,
 				userId: user._id,
-				$or: [{ isUpVote: true, isDownVote: true }],
+				$or: [{ isUpVote: { $eq: true } }, { isDownVote: { $eq: true } }],
 			});
 
 			if (!vote) {
