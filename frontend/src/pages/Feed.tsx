@@ -1,27 +1,38 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Post from "../components/Post";
 
 import styles from "./feed.module.css";
 import { getPosts } from "../api/post";
 import { usePostsAtom } from "../atoms/postAtom";
 import FullscreenLoader from "../components/FullscreenLoader";
+import Button from "../components/ui/button";
 
 export default function Feed() {
 	const [posts, setPosts] = usePostsAtom();
 	const [isFetching, setIsFetching] = useState(true);
+	const [pagable, setIsPagable] = useState(false);
+	const [page, setPage] = useState(1);
+
+	const fetchPosts = useCallback(
+		(page: number) => {
+			setIsFetching(true);
+			getPosts(page)
+				.then((res) => {
+					setIsFetching(false);
+					setIsPagable(res.data.pagable);
+					setPosts([...posts, ...res.data.posts]);
+				})
+				.catch((err) => {
+					console.log(err);
+					setIsFetching(false);
+				});
+		},
+		[page]
+	);
 
 	useEffect(() => {
-		getPosts()
-			.then((res) => {
-				setPosts(res.data.posts);
-				console.log(res.data.posts);
-				setIsFetching(false);
-			})
-			.catch((err) => {
-				console.log(err);
-				setIsFetching(false);
-			});
-	}, []);
+		fetchPosts(page);
+	}, [page]);
 
 	return (
 		<div className={styles.feed__container}>
@@ -30,6 +41,15 @@ export default function Feed() {
 			{posts.map((post) => {
 				return <Post key={post._id} {...post} />;
 			})}
+			{pagable ? (
+				<Button
+					isLoading={isFetching}
+					onClick={() => setPage(page + 1)}
+					className={styles.loadmore__button}
+				>
+					Load More!
+				</Button>
+			) : null}
 		</div>
 	);
 }

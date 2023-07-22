@@ -62,12 +62,6 @@ export const SuperTokensConfig: TypeInput = {
 							);
 
 							if (response.status === "OK") {
-								console.log({
-									username: generateRandomUsername(),
-									avatar: generateRandomAvatar(),
-									supertokensId: response.user.id,
-								});
-
 								await User.create({
 									username: generateRandomUsername(),
 									avatar: generateRandomAvatar(),

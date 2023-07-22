@@ -41,7 +41,7 @@ export default function Post({
 					{fromNow(new Date(createdAt))}
 				</span>
 			</div>
-			<h2>{title}</h2>
+			<h3>{title}</h3>
 			<p>{content}</p>
 			<ActionBar postId={postId} {...votes} />
 		</div>
@@ -73,14 +73,15 @@ function ActionBar({
 			setUpvoted(true);
 			setDownvoted(false);
 			setUpvoteCount(upVotesCount + 1);
-			upVotePost(postId).catch((err) => {
-				console.log(err);
-				alert("error while upvoting!");
-			});
 		} else {
 			setUpvoted(false);
 			setUpvoteCount(upVotesCount - 1);
 		}
+
+		upVotePost(postId).catch((err) => {
+			console.log(err);
+			alert("error while upvoting!");
+		});
 	}
 
 	function handleDownvote() {
@@ -92,14 +93,15 @@ function ActionBar({
 			setDownvoted(true);
 			setUpvoted(false);
 			setDownVotesCount(downVotesCount + 1);
-			downVotePost(postId).catch((err) => {
-				console.log(err);
-				alert("error while down voting!");
-			});
 		} else {
 			setDownvoted(false);
 			setDownVotesCount(downVotesCount - 1);
 		}
+
+		downVotePost(postId).catch((err) => {
+			console.log(err);
+			alert("error while down voting!");
+		});
 	}
 
 	return (

@@ -2,8 +2,10 @@ import { getApiDomain } from "../config";
 
 const POST_API_PREFIX = "/api/posts";
 
-export async function getPosts() {
-	const promise = await fetch(getApiDomain() + POST_API_PREFIX + "/all");
+export async function getPosts(page: number) {
+	const promise = await fetch(
+		getApiDomain() + POST_API_PREFIX + `/all?page=${page}`
+	);
 	const response = await promise.json();
 	return response;
 }

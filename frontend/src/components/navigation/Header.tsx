@@ -5,7 +5,7 @@ import {
 } from "supertokens-auth-react/recipe/session";
 
 import styles from "./header.module.css";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Plus } from "../../icons";
 import Modal from "../ui/modal";
 import Button from "../ui/button";
@@ -42,36 +42,30 @@ export default function Header() {
 			return;
 		}
 
-		setTimeout(() => {
-			//cleanup
-			createPost({ title, content })
-				.then((res) => {
-					setPosts([res.post, ...posts]);
-					setIsLoading(false);
-					setIsModalOpen(false);
-				})
-				.catch((err) => {
-					console.log(err);
-					setIsLoading(false);
-					setIsModalOpen(false);
-					alert("something went wrong while, creating post.");
-				});
-		}, 2000);
+		createPost({ title, content })
+			.then((res) => {
+				setPosts([
+					{
+						...res.post,
+						votes: {
+							downvotes: 0,
+							upvotes: 0,
+							isUserDownvoted: false,
+							isUserUpvoted: false,
+						},
+					},
+					...posts,
+				]);
+				setIsLoading(false);
+				setIsModalOpen(false);
+			})
+			.catch((err) => {
+				console.log(err);
+				setIsLoading(false);
+				setIsModalOpen(false);
+				alert("something went wrong while, creating post.");
+			});
 	}
-
-	const ProtectedPart = useCallback(() => {
-		if (session.loading) {
-			return null;
-		}
-		return session.userId ? (
-			<div className={styles.title__block}>
-				<Plus onClick={() => setIsModalOpen(true)} className={styles.plus} />
-				<Button isLoading={loggingOut} onClick={logoutClicked}>
-					Logout
-				</Button>
-			</div>
-		) : null;
-	}, [session]);
 
 	return (
 		<header>
@@ -85,7 +79,14 @@ export default function Header() {
 					Para<span className={styles.text__orange}>.</span>
 				</span>
 			</div>
-			<ProtectedPart />
+			{!session.loading && session.userId ? (
+				<div className={styles.title__block}>
+					<Plus onClick={() => setIsModalOpen(true)} className={styles.plus} />
+					<Button isLoading={loggingOut} onClick={logoutClicked}>
+						Logout
+					</Button>
+				</div>
+			) : null}
 			{isModalOpen ? (
 				<Modal handleClose={() => setIsModalOpen(false)} title="Post">
 					<form onSubmit={handlePost}>

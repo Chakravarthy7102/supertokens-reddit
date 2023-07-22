@@ -23,6 +23,8 @@ postRouter.get("/all", verifySession(), async (req: SessionRequest, res) => {
 			.limit(OFFSET)
 			.sort({ _id: -1 });
 
+		const totalPost = (await Post.find({}).countDocuments()) - page * OFFSET;
+
 		const postsWithUpvotes = [];
 		for (const post of posts) {
 			const votes = await Vote.aggregate([
@@ -45,52 +47,37 @@ postRouter.get("/all", verifySession(), async (req: SessionRequest, res) => {
 								$cond: [{ $eq: ["$isDownVote", true] }, 1, 0],
 							},
 						},
-						doc: { $first: "$$ROOT" },
-					},
-				},
-				{
-					$replaceRoot: {
-						newRoot: {
-							$mergeObjects: [
-								{
-									upvoteCount: "$upvoteCount",
-									downVoteCount: "$downVoteCount",
-								},
-								"$doc",
-							],
-						},
-					},
-				},
-				{
-					$addFields: {
 						isUserDownvoted: {
-							$cond: [
-								{
-									$and: [
-										{ $eq: ["$userId", user?._id] },
-										{ $eq: ["$isDownVote", true] },
-									],
-								},
-								true,
-								false,
-							],
+							$sum: {
+								$cond: [
+									{
+										$and: [
+											{ $eq: ["$userId", user?._id] },
+											{ $eq: ["$isDownVote", true] },
+										],
+									},
+									1,
+									0,
+								],
+							},
 						},
 						isUserUpvoted: {
-							$cond: [
-								{
-									$and: [
-										{ $eq: ["$userId", user?._id] },
-										{ $eq: ["$isUpVote", true] },
-									],
-								},
-								true,
-								false,
-							],
+							$sum: {
+								$cond: [
+									{
+										$and: [
+											{ $eq: ["$userId", user?._id] },
+											{ $eq: ["$isUpVote", true] },
+										],
+									},
+									1,
+									0,
+								],
+							},
 						},
 					},
 				},
 			]);
-			console.log({ votes });
 			postsWithUpvotes.push({
 				...post.toObject(),
 				votes: {
@@ -103,7 +90,10 @@ postRouter.get("/all", verifySession(), async (req: SessionRequest, res) => {
 		}
 		return res
 			.status(200)
-			.json({ message: "ok", data: { posts: postsWithUpvotes } });
+			.json({
+				message: "ok",
+				data: { posts: postsWithUpvotes, pagable: totalPost >= 1 },
+			});
 	} catch (err) {
 		console.log(err);
 		return res.status(500).json({ message: "something went wrong!" });
@@ -122,8 +112,7 @@ postRouter.post(
 		const { title, content } = req.body;
 		const supertokensId = req.session?.getUserId();
 
-		console.log("userId", typeof supertokensId);
-		const user = await User.findOne({ supertokensId }, "_id");
+		const user = await User.findOne({ supertokensId });
 
 		if (!user) {
 			return res.status(404).json({ message: "user not found!" });
@@ -135,10 +124,10 @@ postRouter.post(
 				content,
 				user: user._id,
 			});
-			console.log({ post });
-			return res
-				.status(200)
-				.json({ message: "new post has been created created", post });
+			return res.status(200).json({
+				message: "new post has been created created",
+				post: { ...post.toObject(), user: user.toObject() },
+			});
 		} catch (err) {
 			console.log(err);
 			return res.status(500).json({ message: "something went wrong!" });
@@ -171,8 +160,6 @@ postRouter.get("/upvote", verifySession(), async (req: SessionRequest, res) => {
 			$or: [{ isUpVote: { $eq: true } }, { isDownVote: { $eq: true } }],
 		});
 
-		console.log({ vote });
-
 		if (!vote) {
 			await Vote.create({
 				postId,
@@ -182,6 +169,9 @@ postRouter.get("/upvote", verifySession(), async (req: SessionRequest, res) => {
 		} else if (vote.isDownVote) {
 			vote.isUpVote = true;
 			vote.isDownVote = false;
+			await vote.save();
+		} else if (vote.isUpVote) {
+			vote.isUpVote = false;
 			await vote.save();
 		}
 	} catch (err) {
@@ -230,6 +220,9 @@ postRouter.get(
 			} else if (vote.isUpVote) {
 				vote.isUpVote = false;
 				vote.isDownVote = true;
+				await vote.save();
+			} else if (vote.isDownVote) {
+				vote.isDownVote = false;
 				await vote.save();
 			}
 		} catch (err) {

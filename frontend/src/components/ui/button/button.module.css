@@ -3,6 +3,7 @@ button {
 	padding: 0.3rem 1rem 0.3rem 1rem;
 	cursor: pointer;
 	position: relative;
+	width: fit-content;
 }
 
 button:hover {
