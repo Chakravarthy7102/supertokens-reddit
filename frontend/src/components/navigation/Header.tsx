@@ -10,6 +10,7 @@ import { Plus } from "../../icons";
 import Modal from "../ui/modal";
 import Button from "../ui/button";
 import { createPost } from "../../api/post";
+import { usePostsAtom } from "../../atoms/postAtom";
 
 export default function Header() {
 	const navigate = useNavigate();
@@ -19,6 +20,8 @@ export default function Header() {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [loggingOut, setLogginOut] = useState(false);
+
+	const [posts, setPosts] = usePostsAtom();
 
 	async function logoutClicked() {
 		setLogginOut(true);
@@ -43,14 +46,16 @@ export default function Header() {
 			//cleanup
 			createPost({ title, content })
 				.then((res) => {
-					console.log(res);
+					setPosts([...posts, res.post]);
+					setIsLoading(false);
+					setIsModalOpen(false);
 				})
 				.catch((err) => {
 					console.log(err);
+					setIsLoading(false);
+					setIsModalOpen(false);
 					alert("something went wrong while, creating post.");
 				});
-			setIsLoading(false);
-			setIsModalOpen(false);
 		}, 2000);
 	}
 

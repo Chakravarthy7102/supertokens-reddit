@@ -6,7 +6,6 @@ import { TypeInput } from "supertokens-node/types";
 import Dashboard from "supertokens-node/recipe/dashboard";
 import User from "./models/user";
 
-
 function generateRandomUsername() {
 	const f = new Fakerator("hu-HU");
 	return f.names.lastName();
@@ -16,7 +15,6 @@ function generateRandomAvatar() {
 	const f = new Fakerator("hu-HU");
 	return f.internet.gravatar();
 }
-
 
 export function getApiDomain() {
 	const apiPort = process.env.REACT_APP_API_PORT || 3001;
@@ -64,7 +62,6 @@ export const SuperTokensConfig: TypeInput = {
 							);
 
 							if (response.status === "OK") {
-
 								console.log({
 									username: generateRandomUsername(),
 									avatar: generateRandomAvatar(),
@@ -76,6 +73,34 @@ export const SuperTokensConfig: TypeInput = {
 									avatar: generateRandomAvatar(),
 									supertokensId: response.user.id,
 								});
+							}
+
+							return response;
+						},
+						thirdPartySignInUp: async function (input) {
+							let response = await originalImplementation.thirdPartySignInUp(
+								input
+							);
+
+							if (response.status === "OK") {
+								// let firstName =
+								// 	//@ts-ignore
+								// 	response.rawUserInfoFromProvider.fromUserInfoAPI![
+								// 		"first_name"
+								// 	];
+								if (response.createdNewUser) {
+									console.log({
+										username: generateRandomUsername(),
+										avatar: generateRandomAvatar(),
+										supertokensId: response.user.id,
+									});
+
+									await User.create({
+										username: generateRandomUsername(),
+										avatar: generateRandomAvatar(),
+										supertokensId: response.user.id,
+									});
+								}
 							}
 
 							return response;

@@ -14,7 +14,7 @@ postRouter.get("/all", async (req, res) => {
 	const page = Number(req.query.page) || 1;
 	const skip = (page - 1) * OFFSET;
 	try {
-		const posts = await Post.find({}).skip(skip).limit(OFFSET);
+		const posts = await Post.find({}).populate("user").skip(skip).limit(OFFSET);
 		return res.status(200).json({ message: "ok", data: { posts } });
 	} catch (err) {
 		console.log(err);
@@ -48,14 +48,13 @@ postRouter.post(
 				user: user._id,
 			});
 			console.log({ post });
+			return res
+				.status(200)
+				.json({ message: "new post has been created created", post });
 		} catch (err) {
 			console.log(err);
 			return res.status(500).json({ message: "something went wrong!" });
 		}
-
-		return res
-			.status(200)
-			.json({ message: "new post has been created created" });
 	}
 );
 

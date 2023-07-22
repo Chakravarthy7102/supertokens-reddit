@@ -16,13 +16,10 @@ export default function Post({ content, title, user }: PostI) {
 	return (
 		<div className={styles.card}>
 			<div className={styles.card__top}>
-				<img
-					className={styles.profile__pic}
-					src="https://styles.redditmedia.com/t5_2w844/styles/communityIcon_krq4riav5m191.png?width=256&s=3bb045009d2a9d1d7543dc7afb7b53a0e6f18121"
-					alt="image"
-				/>
-				<span className={styles.username}>Thorffin</span>
+				<img className={styles.profile__pic} src={user.avatar} alt="image" />
+				<span className={styles.username}>{user.username}</span>
 			</div>
+			<h2>{title}</h2>
 			<p>{content}</p>
 			<ActionBar />
 		</div>

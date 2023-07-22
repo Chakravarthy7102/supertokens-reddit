@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
-import Post, { PostI } from "../components/Post";
+import { useEffect } from "react";
+import Post from "../components/Post";
 
 import styles from "./feed.module.css";
 import { getPosts } from "../api/post";
+import { usePostsAtom } from "../atoms/postAtom";
 
 export default function Feed() {
-	const [posts, setPosts] = useState<Array<PostI>>([]);
+	const [posts, setPosts] = usePostsAtom();
 
 	useEffect(() => {
 		getPosts()

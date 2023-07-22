@@ -21,6 +21,7 @@ export const PostSchema = new mongoose.Schema<IPostModel>(
 		},
 		user: {
 			type: mongoose.Types.ObjectId,
+			ref: "User",
 			required: true,
 		},
 	},
