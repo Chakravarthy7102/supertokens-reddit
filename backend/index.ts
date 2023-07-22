@@ -1,4 +1,4 @@
-import express from "express";
+import express, { json } from "express";
 import cors from "cors";
 import supertokens from "supertokens-node";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
@@ -25,6 +25,7 @@ app.use(
 );
 
 // This exposes all the APIs from SuperTokens to the client.
+app.use(json());
 app.use(middleware());
 
 app.use("/api/posts", postRouter);

@@ -33,9 +33,18 @@ header {
 	color: var(--primary-color);
 }
 
-textarea {
+textarea,
+input {
 	width: 95%;
-	height: 8rem;
 	padding: 0.5rem;
 	margin-bottom: 1rem;
+	font-family: monospace;
+}
+
+textarea {
+	height: 8rem;
+}
+
+input {
+	height: 1rem;
 }

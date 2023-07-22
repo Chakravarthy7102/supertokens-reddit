@@ -3,11 +3,16 @@ import { useState } from "react";
 import { DownVoteIcon, UpVoteIcon } from "../icons";
 import styles from "./post.module.css";
 
-interface PostI {
+export interface PostI {
+	title: string;
 	content: string;
+	user: {
+		username: string;
+		avatar: string;
+	};
 }
 
-export default function Post({ content }: PostI) {
+export default function Post({ content, title, user }: PostI) {
 	return (
 		<div className={styles.card}>
 			<div className={styles.card__top}>

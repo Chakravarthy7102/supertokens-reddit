@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 export interface IUser {
 	username: string;
 	avatar: string;
+	supertokensId: string;
 }
 
 export type IUserModel = IUser & mongoose.Document;
@@ -14,6 +15,10 @@ export const UserSchema = new mongoose.Schema<IUserModel>(
 		},
 		avatar: {
 			type: String,
+		},
+		supertokensId: {
+			type: String,
+			required: true,
 		},
 	},
 	{

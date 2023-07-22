@@ -9,6 +9,7 @@ import { useCallback, useState } from "react";
 import { Plus } from "../../icons";
 import Modal from "../ui/modal";
 import Button from "../ui/button";
+import { createPost } from "../../api/post";
 
 export default function Header() {
 	const navigate = useNavigate();
@@ -17,16 +18,39 @@ export default function Header() {
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [loggingOut, setLogginOut] = useState(false);
 
 	async function logoutClicked() {
+		setLogginOut(true);
 		await signOut();
+		setLogginOut(false);
 		navigate("/auth");
 	}
 
-	function handlePost() {
+	function handlePost(e: React.FormEvent) {
+		e.preventDefault();
 		setIsLoading(true);
-		setTimeout(() => {
+		const title = document.querySelector("input")?.value;
+		const content = document.querySelector("textarea")?.value;
+
+		if (!title || !content || title.length < 3 || content?.length < 3) {
+			alert("Please enter valid title or content.");
 			setIsLoading(false);
+			return;
+		}
+
+		setTimeout(() => {
+			//cleanup
+			createPost({ title, content })
+				.then((res) => {
+					console.log(res);
+				})
+				.catch((err) => {
+					console.log(err);
+					alert("something went wrong while, creating post.");
+				});
+			setIsLoading(false);
+			setIsModalOpen(false);
 		}, 2000);
 	}
 
@@ -37,7 +61,9 @@ export default function Header() {
 		return session.userId ? (
 			<div className={styles.title__block}>
 				<Plus onClick={() => setIsModalOpen(true)} className={styles.plus} />
-				<Button onClick={logoutClicked}>Logout</Button>
+				<Button isLoading={loggingOut} onClick={logoutClicked}>
+					Logout
+				</Button>
 			</div>
 		) : null;
 	}, [session]);
@@ -57,16 +83,19 @@ export default function Header() {
 			<ProtectedPart />
 			{isModalOpen ? (
 				<Modal handleClose={() => setIsModalOpen(false)} title="Post">
-					<textarea
-						name="content"
-						id="content"
-						cols={30}
-						rows={30}
-						placeholder="Enter something..."
-					></textarea>
-					<Button isLoading={isLoading} onClick={handlePost}>
-						Post
-					</Button>
+					<form onSubmit={handlePost}>
+						<input type="text" name="title" id="title" placeholder="title" />
+						<textarea
+							name="content"
+							id="content"
+							cols={30}
+							rows={30}
+							placeholder="Enter something..."
+						></textarea>
+						<Button type="submit" isLoading={isLoading}>
+							Post
+						</Button>
+					</form>
 				</Modal>
 			) : null}
 		</header>
