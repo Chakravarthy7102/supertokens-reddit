@@ -19,6 +19,34 @@ postRouter.get("/all", async (req, res) => {
 			.skip(skip)
 			.limit(OFFSET)
 			.sort({ _id: -1 });
+
+		const postsWithUpvotes = [];
+		for (const post of posts) {
+			const votes = await Vote.aggregate([
+				{
+					$match: {
+						postId: post._id,
+					},
+				},
+				{
+					$group: {
+						_id: "$postId",
+						upvoteCount: {
+							$sum: {
+								$cond: [{ $eq: ["$isUpVote", true] }, 1, 0],
+							},
+						},
+						downVoteCount: {
+							$sum: {
+								$cond: [{ $eq: ["$isDownVote", true] }, 1, 0],
+							},
+						},
+					},
+				},
+			]);
+			console.log({ votes });
+			postsWithUpvotes.push({ ...posts, votes });
+		}
 		return res.status(200).json({ message: "ok", data: { posts } });
 	} catch (err) {
 		console.log(err);
@@ -84,7 +112,7 @@ postRouter.get("/upvote", verifySession(), async (req: SessionRequest, res) => {
 		const vote = await Vote.findOne({
 			postId,
 			userId: user._id,
-			isUpVote: true,
+			$or: [{ isUpVote: true, isDownVote: true }],
 		});
 
 		if (!vote) {
@@ -132,7 +160,7 @@ postRouter.get(
 			const vote = await Vote.findOne({
 				postId,
 				userId: user._id,
-				isDownVote: true,
+				$or: [{ isUpVote: true, isDownVote: true }],
 			});
 
 			if (!vote) {
