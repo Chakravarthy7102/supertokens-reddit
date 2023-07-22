@@ -2,22 +2,34 @@ import { useState } from "react";
 
 import { DownVoteIcon, UpVoteIcon } from "../icons";
 import styles from "./post.module.css";
+import { fromNow } from "../utils/fromNow";
 
 export interface PostI {
+	_id: string;
 	title: string;
 	content: string;
+	createdAt: string;
 	user: {
 		username: string;
 		avatar: string;
 	};
 }
 
-export default function Post({ content, title, user }: PostI) {
+export default function Post({
+	content,
+	title,
+	user,
+	_id: postId,
+	createdAt,
+}: PostI) {
 	return (
 		<div className={styles.card}>
 			<div className={styles.card__top}>
 				<img className={styles.profile__pic} src={user.avatar} alt="image" />
 				<span className={styles.username}>{user.username}</span>
+				<span className={styles.created__at}>
+					{fromNow(new Date(createdAt))}
+				</span>
 			</div>
 			<h2>{title}</h2>
 			<p>{content}</p>

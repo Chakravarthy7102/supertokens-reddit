@@ -45,3 +45,8 @@
 .fill__red {
 	fill: red;
 }
+
+.created__at{
+	font-size: x-small;
+	font-weight: 100;
+}

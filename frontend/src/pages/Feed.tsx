@@ -1,29 +1,34 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Post from "../components/Post";
 
 import styles from "./feed.module.css";
 import { getPosts } from "../api/post";
 import { usePostsAtom } from "../atoms/postAtom";
+import FullscreenLoader from "../components/FullscreenLoader";
 
 export default function Feed() {
 	const [posts, setPosts] = usePostsAtom();
+	const [isFetching, setIsFetching] = useState(true);
 
 	useEffect(() => {
 		getPosts()
 			.then((res) => {
-				console.log("res", res.data.posts);
 				setPosts(res.data.posts);
+				console.log(res.data.posts);
+				setIsFetching(false);
 			})
 			.catch((err) => {
 				console.log(err);
+				setIsFetching(false);
 			});
 	}, []);
 
 	return (
 		<div className={styles.feed__container}>
-			{posts.length ? null : <NoPosts />}
-			{posts.map((data, index) => {
-				return <Post key={index} {...data} />;
+			{!posts.length && !isFetching ? <NoPosts /> : null}
+			{isFetching ? <FullscreenLoader /> : null}
+			{posts.map((post) => {
+				return <Post key={post._id} {...post} />;
 			})}
 		</div>
 	);

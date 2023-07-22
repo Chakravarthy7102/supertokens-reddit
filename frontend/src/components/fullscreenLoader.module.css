@@ -1,0 +1,41 @@
+.fullscreen__loader {
+	display: flex;
+	height: calc(100vh - 20rem);
+	justify-content: center;
+	justify-items: center;
+}
+
+.fullscreen__loader > svg {
+	height: 2.5rem;
+	width: 2.5rem;
+	margin-top: 12rem;
+	-webkit-animation: spin 1s infinite linear;
+	animation: spin 1s infinite linear;
+}
+
+@-moz-keyframes spin {
+	from {
+		-moz-transform: rotate(0deg);
+	}
+	to {
+		-moz-transform: rotate(360deg);
+	}
+}
+
+@-webkit-keyframes spin {
+	from {
+		-webkit-transform: rotate(0deg);
+	}
+	to {
+		-webkit-transform: rotate(360deg);
+	}
+}
+
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}

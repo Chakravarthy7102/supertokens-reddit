@@ -14,7 +14,11 @@ postRouter.get("/all", async (req, res) => {
 	const page = Number(req.query.page) || 1;
 	const skip = (page - 1) * OFFSET;
 	try {
-		const posts = await Post.find({}).populate("user").skip(skip).limit(OFFSET);
+		const posts = await Post.find({})
+			.populate("user")
+			.skip(skip)
+			.limit(OFFSET)
+			.sort({ _id: -1 });
 		return res.status(200).json({ message: "ok", data: { posts } });
 	} catch (err) {
 		console.log(err);

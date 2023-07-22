@@ -46,7 +46,7 @@ export default function Header() {
 			//cleanup
 			createPost({ title, content })
 				.then((res) => {
-					setPosts([...posts, res.post]);
+					setPosts([res.post, ...posts]);
 					setIsLoading(false);
 					setIsModalOpen(false);
 				})
